@@ -1,5 +1,5 @@
 # HueESPSwitch
-## A Switch / Remote Control for Philips Hue Lights, because of the original ones are really expensive
+## A remote control for Philips Hue Lights
 
 > Coming soon
 
