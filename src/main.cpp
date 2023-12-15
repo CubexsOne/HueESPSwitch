@@ -1,31 +1,38 @@
 #include <Arduino.h>
 #include "DisplayManager.h"
+#include "WifiManager.h"
 
 #define CLK 4
 #define DT 19
 #define SW 5
-DisplayManager dm;
+#define BB 15
+
+DisplayManager displayManager;
+WifiManager wifiManager;
 
 int counter = 0;
 int currentStateCLK;
 int lastStateCLK;
 String currentDir ="";
 unsigned long lastButtonPress = 0;
+unsigned long lastBButtonPress = 0;
 
 void setup() {
-  dm.begin();
+  Serial.begin(9600);
+  displayManager.begin();
+	wifiManager.begin(displayManager);
 
 	pinMode(SW, INPUT_PULLUP);
 	pinMode(CLK, INPUT);
 	pinMode(DT, INPUT);
-
-  Serial.begin(9600);
+	pinMode(BB, INPUT_PULLUP);
 
   lastStateCLK = digitalRead(CLK);
 }
 
 void loop() {
-  dm.loop();
+  displayManager.loop();
+	wifiManager.loop();
 
   // Read the current state of CLK
 	currentStateCLK = digitalRead(CLK);
@@ -56,6 +63,7 @@ void loop() {
 
 	// Read the button state
 	int btnState = digitalRead(SW);
+	int bBtnState = digitalRead(BB);
 
 	//If we detect LOW signal, button is pressed
 	if (btnState == LOW) {
@@ -67,6 +75,17 @@ void loop() {
 
 		// Remember last button press event
 		lastButtonPress = millis();
+	}
+
+	if (bBtnState == LOW) {
+		//if 50ms have passed since last LOW pulse, it means that the
+		//button has been pressed, released and pressed again
+		if (millis() - lastBButtonPress > 50) {
+			Serial.println("BButton pressed!");
+		}
+
+		// Remember last button press event
+		lastBButtonPress = millis();
 	}
 
 	// Put in a slight delay to help debounce the reading
